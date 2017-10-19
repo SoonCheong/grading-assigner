@@ -45,6 +45,8 @@ def signal_handler(signal, frame):
                                        headers=headers)
             logger.info(del_resp)
     '''
+    subprocess.Popen('ssmtp soonyau@gmail.com < email_404.txt', shell=True, stdout=subprocess.PIPE).communicate()[0]
+
     sys.exit(0)
 
 signal.signal(signal.SIGINT, signal_handler)
@@ -69,8 +71,10 @@ def alert_for_assignment(current_request, headers):
 def wait_for_assign_eligible():
     while True:
         assigned_resp = requests.get(ASSIGNED_COUNT_URL, headers=headers)
-        if assigned_resp.status_code == 404 or assigned_resp.json()['assigned_count'] < 2:
+        if assigned_resp.status_code == 404:
             subprocess.Popen('ssmtp soonyau@gmail.com < email_404.txt', shell=True, stdout=subprocess.PIPE).communicate()[0]
+            break
+        elif assigned_resp.json()['assigned_count'] < 2:
             break
         else:
             logger.info('Waiting for assigned submissions < 2')
