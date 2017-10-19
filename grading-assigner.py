@@ -7,6 +7,7 @@ import os
 import requests
 import time
 import pytz
+import subprocess
 from dateutil import parser
 from datetime import datetime, timedelta
 
@@ -56,6 +57,12 @@ def alert_for_assignment(current_request, headers):
         logger.info("View it here: " + REVIEW_URL.format(sid=current_request['submission_id']))
         logger.info("=================================================")
         logger.info("Continuing to poll...")
+        
+        utcnow = datetime.utcnow()
+        hour = utcnow.time().hour
+        if hour >= 9:
+            subprocess.Popen('ssmtp soonyau@gmail.com < email_msg.txt', shell=True, stdout=subprocess.PIPE).communicate()[0]
+
         return None
     return current_request
 
