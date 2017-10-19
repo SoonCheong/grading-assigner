@@ -70,12 +70,13 @@ def wait_for_assign_eligible():
     while True:
         assigned_resp = requests.get(ASSIGNED_COUNT_URL, headers=headers)
         if assigned_resp.status_code == 404 or assigned_resp.json()['assigned_count'] < 2:
+            subprocess.Popen('ssmtp soonyau@gmail.com < email_404.txt', shell=True, stdout=subprocess.PIPE).communicate()[0]
             break
         else:
             logger.info('Waiting for assigned submissions < 2')
         # Wait 30 seconds before checking to see if < 2 open submissions
         # that is, waiting until a create submission request will be permitted
-        time.sleep(30.0)
+        time.sleep(15.0)
 
 def refresh_request(current_request):
     logger.info('Refreshing existing request')
