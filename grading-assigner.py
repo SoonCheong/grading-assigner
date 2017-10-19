@@ -34,6 +34,7 @@ logger.setLevel(logging.INFO)
 headers = None
 
 def signal_handler(signal, frame):
+    '''
     if headers:
         logger.info('Cleaning up active request')
         me_resp = requests.get(ME_REQUEST_URL, headers=headers)
@@ -42,6 +43,7 @@ def signal_handler(signal, frame):
             del_resp = requests.delete(DELETE_URL_TMPL.format(BASE_URL, me_resp.json()[0]['id']),
                                        headers=headers)
             logger.info(del_resp)
+    '''
     sys.exit(0)
 
 signal.signal(signal.SIGINT, signal_handler)
