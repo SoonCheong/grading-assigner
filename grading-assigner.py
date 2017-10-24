@@ -45,7 +45,7 @@ def signal_handler(signal, frame):
                                        headers=headers)
             logger.info(del_resp)
     '''
-    subprocess.Popen('ssmtp soonyau@gmail.com < email_404.txt', shell=True, stdout=subprocess.PIPE).communicate()[0]
+    #subprocess.Popen('ssmtp soonyau@gmail.com < email_404.txt', shell=True, stdout=subprocess.PIPE).communicate()[0]
 
     sys.exit(0)
 
@@ -62,22 +62,25 @@ def alert_for_assignment(current_request, headers):
         
         utcnow = datetime.utcnow()
         hour = utcnow.time().hour
-        if hour >= 9:
-            subprocess.Popen('ssmtp soonyau@gmail.com < email_msg.txt', shell=True, stdout=subprocess.PIPE).communicate()[0]
+        #if hour >= 9:
+        subprocess.Popen('ssmtp soonyau@gmail.com < email_msg.txt', shell=True, stdout=subprocess.PIPE).communicate()[0]
 
         return None
     return current_request
 
 def wait_for_assign_eligible():
     while True:
-        assigned_resp = requests.get(ASSIGNED_COUNT_URL, headers=headers)
-        if assigned_resp.status_code == 404:
-            subprocess.Popen('ssmtp soonyau@gmail.com < email_404.txt', shell=True, stdout=subprocess.PIPE).communicate()[0]
-            break
-        elif assigned_resp.json()['assigned_count'] < 2:
-            break
-        else:
-            logger.info('Waiting for assigned submissions < 2')
+        try:
+            assigned_resp = requests.get(ASSIGNED_COUNT_URL, headers=headers)
+            if assigned_resp.status_code == 404:
+                subprocess.Popen('ssmtp soonyau@gmail.com < email_404.txt', shell=True, stdout=subprocess.PIPE).communicate()[0]
+                break
+            elif assigned_resp.json()['assigned_count'] < 2:
+                break
+            else:
+                logger.info('Waiting for assigned submissions < 2')
+        except:
+            pass
         # Wait 30 seconds before checking to see if < 2 open submissions
         # that is, waiting until a create submission request will be permitted
         time.sleep(15.0)
@@ -114,8 +117,14 @@ def fetch_certified_pairs():
 def request_reviews(token):
     global headers
     headers = {'Authorization': token, 'Content-Length': '0'}
-
+    
     project_language_pairs = fetch_certified_pairs()
+
+    utcnow = datetime.utcnow()
+    hour = utcnow.time().hour
+    if hour <= 6:
+        # poll for MPC only
+        project_language_pairs = [{'project_id': 295, 'language': 'en'}]
     logger.info("Will poll for projects/languages %s", str(project_language_pairs))
 
     me_req_resp = requests.get(ME_REQUEST_URL, headers=headers)
