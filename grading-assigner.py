@@ -33,6 +33,8 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 headers = None
+def send_error_email():
+    subprocess.Popen('ssmtp soonyau@gmail.com < email_404.txt', shell=True, stdout=subprocess.PIPE).communicate()[0]
 
 def signal_handler(signal, frame):
     '''
@@ -45,7 +47,7 @@ def signal_handler(signal, frame):
                                        headers=headers)
             logger.info(del_resp)
     '''
-    #subprocess.Popen('ssmtp soonyau@gmail.com < email_404.txt', shell=True, stdout=subprocess.PIPE).communicate()[0]
+    send_error_email()
 
     sys.exit(0)
 
@@ -73,16 +75,17 @@ def wait_for_assign_eligible():
         try:
             assigned_resp = requests.get(ASSIGNED_COUNT_URL, headers=headers)
             if assigned_resp.status_code == 404:
-                subprocess.Popen('ssmtp soonyau@gmail.com < email_404.txt', shell=True, stdout=subprocess.PIPE).communicate()[0]
+                send_error_email()
                 break
             elif assigned_resp.json()['assigned_count'] < 2:
                 break
             else:
                 logger.info('Waiting for assigned submissions < 2')
+            # Wait 30 seconds before checking to see if < 2 open submissions
+            # that is, waiting until a create submission request will be permitted
         except:
-            pass
-        # Wait 30 seconds before checking to see if < 2 open submissions
-        # that is, waiting until a create submission request will be permitted
+            break
+
         time.sleep(15.0)
 
 def refresh_request(current_request):
@@ -164,13 +167,17 @@ def request_reviews(token):
                 # If an assignment has been made since status was last checked,
                 # the request record will no longer be 'fulfilled'
                 url = GET_REQUEST_URL_TMPL.format(BASE_URL, current_request['id'])
-                get_req_resp = requests.get(url, headers=headers)
-                current_request = get_req_resp.json() if me_req_resp.status_code == 200 else None
+                try:
+                    get_req_resp = requests.get(url, headers=headers)
+                    current_request = get_req_resp.json() if me_req_resp.status_code == 200 else None
+                except:
+                    pass
+
 
         current_request = alert_for_assignment(current_request, headers)
         if current_request:
             # Wait 2 minutes before next check to see if the request has been fulfilled
-            time.sleep(120.0)
+            time.sleep(30.0)
 
 if __name__ == "__main__":
     cmd_parser = argparse.ArgumentParser(description =
