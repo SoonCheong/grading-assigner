@@ -44,11 +44,11 @@ def send_error_email():
     else:
         send_email("Grading Error 404!", "please reset")
 
-def send_success_email();
-   if email_server == None:
+def send_success_email():
+    if email_server == None:
         subprocess.Popen('ssmtp soonyau@gmail.com < email_msg.txt', shell=True, stdout=subprocess.PIPE).communicate()[0]
     else:
-        send_email("You have received a new review", "££££")
+        send_email("You have received a new review", "enjoy reviewing")
 
 
 def signal_handler(signal, frame):
@@ -62,7 +62,7 @@ def signal_handler(signal, frame):
                                        headers=headers)
             logger.info(del_resp)
     '''
-    send_error_email()
+    #send_error_email()
 
     sys.exit(0)
 
@@ -197,7 +197,6 @@ def request_reviews(token):
             time.sleep(30.0)
 
 if __name__ == "__main__":
-    send_error_email()
     cmd_parser = argparse.ArgumentParser(description =
 	"Poll the Udacity reviews API to claim projects to review."
     )
