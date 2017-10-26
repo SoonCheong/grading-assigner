@@ -11,6 +11,11 @@ import subprocess
 from dateutil import parser
 from datetime import datetime, timedelta
 
+email_server = "mailgun"
+
+if email_server == "mailgun":
+    from mailgun import send_email
+
 utc = pytz.UTC
 
 BASE_URL = 'https://review-api.udacity.com/api/v1'
@@ -34,7 +39,17 @@ logger.setLevel(logging.INFO)
 
 headers = None
 def send_error_email():
-    subprocess.Popen('ssmtp soonyau@gmail.com < email_404.txt', shell=True, stdout=subprocess.PIPE).communicate()[0]
+    if email_server == None:
+        subprocess.Popen('ssmtp soonyau@gmail.com < email_404.txt', shell=True, stdout=subprocess.PIPE).communicate()[0]
+    else:
+        send_email("Grading Error 404!", "please reset")
+
+def send_success_email();
+   if email_server == None:
+        subprocess.Popen('ssmtp soonyau@gmail.com < email_msg.txt', shell=True, stdout=subprocess.PIPE).communicate()[0]
+    else:
+        send_email("You have received a new review", "££££")
+
 
 def signal_handler(signal, frame):
     '''
@@ -64,8 +79,10 @@ def alert_for_assignment(current_request, headers):
         
         utcnow = datetime.utcnow()
         hour = utcnow.time().hour
+        send_success_email()
         #if hour >= 9:
-        subprocess.Popen('ssmtp soonyau@gmail.com < email_msg.txt', shell=True, stdout=subprocess.PIPE).communicate()[0]
+        send_success_email()
+        #subprocess.Popen('ssmtp soonyau@gmail.com < email_msg.txt', shell=True, stdout=subprocess.PIPE).communicate()[0]
 
         return None
     return current_request
@@ -180,6 +197,7 @@ def request_reviews(token):
             time.sleep(30.0)
 
 if __name__ == "__main__":
+    send_error_email()
     cmd_parser = argparse.ArgumentParser(description =
 	"Poll the Udacity reviews API to claim projects to review."
     )
