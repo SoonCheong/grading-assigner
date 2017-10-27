@@ -79,7 +79,6 @@ def alert_for_assignment(current_request, headers):
         
         utcnow = datetime.utcnow()
         hour = utcnow.time().hour
-        send_success_email()
         #if hour >= 9:
         send_success_email()
         #subprocess.Popen('ssmtp soonyau@gmail.com < email_msg.txt', shell=True, stdout=subprocess.PIPE).communicate()[0]
@@ -142,9 +141,9 @@ def request_reviews(token):
 
     utcnow = datetime.utcnow()
     hour = utcnow.time().hour
-    if hour <= 6:
+    #if hour <= 6:
         # poll for MPC only
-        project_language_pairs = [{'project_id': 295, 'language': 'en'}]
+    #    project_language_pairs = [{'project_id': 295, 'language': 'en'}]
     logger.info("Will poll for projects/languages %s", str(project_language_pairs))
 
     me_req_resp = requests.get(ME_REQUEST_URL, headers=headers)
