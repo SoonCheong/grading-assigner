@@ -81,7 +81,6 @@ def alert_for_assignment(current_request, headers):
         hour = utcnow.time().hour
         #if hour >= 9:
         send_success_email()
-        #subprocess.Popen('ssmtp soonyau@gmail.com < email_msg.txt', shell=True, stdout=subprocess.PIPE).communicate()[0]
 
         return None
     return current_request
@@ -138,12 +137,9 @@ def request_reviews(token):
     headers = {'Authorization': token, 'Content-Length': '0'}
     
     project_language_pairs = fetch_certified_pairs()
+    mpc_project_language_pairs = [{'project_id': 295, 'language': 'en'}]
 
-    utcnow = datetime.utcnow()
-    hour = utcnow.time().hour
-    #if hour <= 6:
-        # poll for MPC only
-    #    project_language_pairs = [{'project_id': 295, 'language': 'en'}]
+
     logger.info("Will poll for projects/languages %s", str(project_language_pairs))
 
     me_req_resp = requests.get(ME_REQUEST_URL, headers=headers)
@@ -159,10 +155,17 @@ def request_reviews(token):
         wait_for_assign_eligible()
 
         if current_request is None:
-            logger.info('Creating a request for ' + str(len(project_language_pairs)) +
+
+            utcnow = datetime.utcnow()
+            hour = utcnow.time().hour
+
+            project_list = project_language_pairs if hour <= 6 else mpc_project_language_pairs
+
+            logger.info('Creating a request for ' + str(len(project_list)) +
                         ' possible project/language combinations')
+
             create_resp = requests.post(CREATE_REQUEST_URL,
-                                        json={'projects': project_language_pairs},
+                                        json={'projects': project_list},
                                         headers=headers)
             current_request = create_resp.json() if create_resp.status_code == 201 else None
         else:
@@ -187,7 +190,7 @@ def request_reviews(token):
                     get_req_resp = requests.get(url, headers=headers)
                     current_request = get_req_resp.json() if me_req_resp.status_code == 200 else None
                 except:
-                    pass
+                    current_request = None
 
 
         current_request = alert_for_assignment(current_request, headers)
