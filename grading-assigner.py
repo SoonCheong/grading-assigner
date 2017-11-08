@@ -159,8 +159,8 @@ def request_reviews(token):
             utcnow = datetime.utcnow()
             hour = utcnow.time().hour
 
-            project_list = project_language_pairs if hour <= 6 else mpc_project_language_pairs
-
+            #project_list = project_language_pairs if hour <= 6 else mpc_project_language_pairs
+            project_list = project_language_pairs
             logger.info('Creating a request for ' + str(len(project_list)) +
                         ' possible project/language combinations')
 
