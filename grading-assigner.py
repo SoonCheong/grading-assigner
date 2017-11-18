@@ -8,6 +8,7 @@ import requests
 import time
 import pytz
 import subprocess
+import traceback
 from dateutil import parser
 from datetime import datetime, timedelta
 
@@ -38,6 +39,15 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 headers = None
+
+def excepthook(type, value, tb):
+    except_string = traceback.format_exception(type, value, tb)
+    except_string = 'Exception:\n'+''.join(except_string)
+    send_error_email()
+    print(except_string)
+
+sys.excepthook = excepthook
+
 def send_error_email():
     if email_server == None:
         subprocess.Popen('ssmtp soonyau@gmail.com < email_404.txt', shell=True, stdout=subprocess.PIPE).communicate()[0]
