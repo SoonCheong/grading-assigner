@@ -111,7 +111,7 @@ def wait_for_assign_eligible():
         except:
             break
 
-        time.sleep(15.0)
+        time.sleep(30.0)
 
 def refresh_request(current_request):
     logger.info('Refreshing existing request')
@@ -206,7 +206,7 @@ def request_reviews(token):
         current_request = alert_for_assignment(current_request, headers)
         if current_request:
             # Wait 2 minutes before next check to see if the request has been fulfilled
-            time.sleep(30.0)
+            time.sleep(60.0)
 
 if __name__ == "__main__":
     cmd_parser = argparse.ArgumentParser(description =
