@@ -146,8 +146,8 @@ def request_reviews(token):
     global headers
     headers = {'Authorization': token, 'Content-Length': '0'}
     
-    requests.put("https://review-api.udacity.com/api/v1/submissions/857676/unassign",headers=headers)
-    sys.exit()
+    #requests.put("https://review-api.udacity.com/api/v1/submissions/857676/unassign",headers=headers)
+    #sys.exit()
     project_language_pairs = fetch_certified_pairs()
     mpc_project_language_pairs = [{'project_id': 295, 'language': 'en'}]
 
@@ -205,7 +205,7 @@ def request_reviews(token):
         current_request = alert_for_assignment(current_request, headers)
         if current_request:
             # Wait 2 minutes before next check to see if the request has been fulfilled
-            time.sleep(120.0)
+            time.sleep(60.0)
 
 if __name__ == "__main__":
     cmd_parser = argparse.ArgumentParser(description =
