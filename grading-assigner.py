@@ -28,6 +28,7 @@ DELETE_URL_TMPL = '{}/submission_requests/{}.json'
 GET_REQUEST_URL_TMPL = '{}/submission_requests/{}.json'
 PUT_REQUEST_URL_TMPL = '{}/submission_requests/{}.json'
 REFRESH_URL_TMPL = '{}/submission_requests/{}/refresh.json'
+GET_ASSIGNED_URL = '{}/submissions/assigned'.format(BASE_URL)
 ASSIGNED_COUNT_URL = '{}/me/submissions/assigned_count.json'.format(BASE_URL)
 ASSIGNED_URL = '{}/me/submissions/assigned.json'.format(BASE_URL)
 
@@ -43,22 +44,24 @@ headers = None
 def excepthook(type, value, tb):
     except_string = traceback.format_exception(type, value, tb)
     except_string = 'Exception:\n'+''.join(except_string)
-    send_error_email()
+    send_error_email(except_string)
     print(except_string)
 
 sys.excepthook = excepthook
 
-def send_error_email():
+def send_error_email(content):
     if email_server == None:
         subprocess.Popen('ssmtp soonyau@gmail.com < email_404.txt', shell=True, stdout=subprocess.PIPE).communicate()[0]
     else:
-        send_email("Grading Error 404!", "please reset")
+        send_email("Grading Error 404!", content)
 
 def send_success_email():
+    assigned_project = assigned_submissions()
+    project_name = assigned_project[0] if len(assigned_project) == 1 else assigned_project
     if email_server == None:
         subprocess.Popen('ssmtp soonyau@gmail.com < email_msg.txt', shell=True, stdout=subprocess.PIPE).communicate()[0]
     else:
-        send_email("You have received a new review", "enjoy reviewing")
+        send_email("You have received a new review - " + project_name, "enjoy reviewing")
 
 
 def signal_handler(signal, frame):
@@ -77,6 +80,13 @@ def signal_handler(signal, frame):
     sys.exit(0)
 
 signal.signal(signal.SIGINT, signal_handler)
+
+def assigned_submissions():
+    resp = requests.get(GET_ASSIGNED_URL, headers=headers).json()
+    project_names=[]
+    for submission in resp:
+        project_names.append(submission['project']['name'])
+    return project_names
 
 def alert_for_assignment(current_request, headers):
     if current_request and current_request['status'] == 'fulfilled':
