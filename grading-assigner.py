@@ -28,7 +28,7 @@ DELETE_URL_TMPL = '{}/submission_requests/{}.json'
 GET_REQUEST_URL_TMPL = '{}/submission_requests/{}.json'
 PUT_REQUEST_URL_TMPL = '{}/submission_requests/{}.json'
 REFRESH_URL_TMPL = '{}/submission_requests/{}/refresh.json'
-GET_ASSIGNED_URL = '{}/submissions/assigned'.format(BASE_URL)
+GET_ASSIGNED_URL = '{}/me/submissions/assigned'.format(BASE_URL)
 ASSIGNED_COUNT_URL = '{}/me/submissions/assigned_count.json'.format(BASE_URL)
 ASSIGNED_URL = '{}/me/submissions/assigned.json'.format(BASE_URL)
 
@@ -82,10 +82,13 @@ def signal_handler(signal, frame):
 signal.signal(signal.SIGINT, signal_handler)
 
 def assigned_submissions():
-    resp = requests.get(GET_ASSIGNED_URL, headers=headers).json()
+    resp = requests.get(GET_ASSIGNED_URL, headers=headers)
+    resp = resp.json()
+
     project_names=[]
     for submission in resp:
         project_names.append(submission['project']['name'])
+
     return project_names
 
 def alert_for_assignment(current_request, headers):
@@ -155,7 +158,7 @@ def fetch_certified_pairs():
 def request_reviews(token):
     global headers
     headers = {'Authorization': token, 'Content-Length': '0'}
-    
+
     #requests.put("https://review-api.udacity.com/api/v1/submissions/857676/unassign",headers=headers)
     #sys.exit()
     project_language_pairs = fetch_certified_pairs()
