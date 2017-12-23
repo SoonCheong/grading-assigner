@@ -57,7 +57,7 @@ def send_error_email(content):
 
 def send_success_email():
     assigned_project = assigned_submissions()
-    project_name = assigned_project[0] if len(assigned_project) == 1 else assigned_project
+    project_name = assigned_project[-1]
     if email_server == None:
         subprocess.Popen('ssmtp soonyau@gmail.com < email_msg.txt', shell=True, stdout=subprocess.PIPE).communicate()[0]
     else:
